@@ -1,0 +1,34 @@
+{
+    "auth": {
+        "signup": "/api/auth/register/",
+        "login": "/api/auth/login/",
+        "sendOtp": "/api/auth/send-otp/",
+        "verifyOtp": "/api/auth/verify-otp/",
+        "forgotPassword": "/api/auth/forgot-password/",
+        "getProfile": "/api/auth/profile/",
+        "logout": "/api/auth/logout/",
+        "refreshToken": "/api/auth/token/refresh/",
+        "updatePassword": "/api/auth/change-password/"
+    },
+    "student": {
+        "trialStatus": "/api/auth/trial-status/",
+        "student_dashboard":"/api/dashboard/student/"
+    },
+    "course":{
+        "courses": "/api/courses/",
+        "mycourses": "/api/courses/my_courses/"
+    },
+    "classes": {
+        "sessions": "/api/classes/sessions/",
+        "recordedVideos": "/api/classes/recordings/",
+        "uploadRecording": "/api/classes/sessions/:roomId/upload-recording/"
+
+    },
+    "payments": {
+        "create_order": "/api/payments/create_order/",
+        "verify_payment": "/api/payments/verify_payment/"
+    },
+    "dashboard": {
+        "teacherStats": "/api/dashboard/teacher/"
+    }
+}
