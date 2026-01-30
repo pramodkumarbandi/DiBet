@@ -1,0 +1,89 @@
+@import '../../base/bootstrap-extended/include';
+@import '../../base/components/include';
+
+.app-header {
+  background-color: var(--bs-body-bg);
+  height: 70px;
+  padding: 0 1rem;
+  border-bottom: 1px solid $border-color;
+
+  display: flex;
+  align-items: center;
+
+  .header-logo {
+    height: 38px;
+    object-fit: contain;
+  }
+
+  .header-search {
+    max-width: 420px;
+    width: 100%;
+
+    input {
+      border-radius: 20px;
+      padding-left: 1rem;
+      background-color: $white;
+    }
+  }
+
+  .header-datetime {
+    line-height: 1.2;
+
+    small {
+      display: block;
+      color: $gray-500; // Vuexy variable
+    }
+
+    strong {
+      font-size: 0.9rem;
+      color: $body-color;
+    }
+  }
+
+  .theme-toggle {
+    color: $body-color;
+    cursor: pointer;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+}
+
+/* ================================
+   Dark Layout Overrides (Vuexy)
+   ================================ */
+.dark-layout {
+  .app-header {
+    background-color: $theme-dark-card-bg;
+    border-bottom-color: $theme-dark-border-color;
+
+    .header-search input {
+      background-color: $theme-dark-input-bg;
+      color: $theme-dark-body-color;
+      border-color: $theme-dark-border-color;
+    }
+
+    .header-datetime {
+      small {
+        color: rgba($theme-dark-body-color, 0.7);
+      }
+
+      strong {
+        color: $theme-dark-body-color;
+      }
+    }
+
+    .theme-toggle {
+      color: $theme-dark-body-color;
+
+      &:hover {
+        color: $primary;
+      }
+    }
+  }
+}
+
+.my-signup-form .mb-3 {
+  margin-bottom: 1rem !important;
+}

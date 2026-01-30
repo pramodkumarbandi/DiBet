@@ -1,0 +1,86 @@
+@import '../bootstrap-extended/include';
+@import '../components/include';
+
+// ===== Default (Light Mode) =====
+.cdetails-container {
+ background: linear-gradient(135deg, #ffecd2, #fcb69f, #a1c4fd, #c2e9fb);
+  min-height: 100vh;
+
+  // Video Section (Left Panel)
+  .video-section {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.05);
+
+    h2 {
+      color: #0072ff;
+    }
+
+    .chapter-title {
+      color: #28a745; // or $success
+    }
+  }
+
+  // Course Content (Right Panel)
+  .course-content {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.05);
+
+    h4 {
+      color: #0072ff;
+    }
+
+    .progress {
+      background-color: #e0e0e0 !important;
+    }
+
+    .chapter-item {
+      background: #f0f9ff;
+      color: #0072ff;
+      font-weight: 500;
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+// ===== Dark Theme Overrides =====
+.dark-layout {
+  .cdetails-container {
+    background: linear-gradient(135deg, #1e1e2d, #2a2a3c);
+
+    .video-section {
+      background-color: rgba(30, 30, 45, 0.95);
+      color: #e0e0e0;
+      box-shadow: 0px 8px 20px rgba(0,0,0,0.4);
+
+      h2 {
+        color: #80b3ff;
+      }
+
+      .chapter-title {
+        color: lighten($success, 20%);
+      }
+    }
+
+    .course-content {
+      background-color: rgba(30, 30, 45, 0.95);
+      color: #c0c0ff;
+      box-shadow: 0px 8px 20px rgba(0,0,0,0.4);
+
+      h4 {
+        color: #80b3ff;
+      }
+
+      .progress {
+        background-color: #3a3a5a !important;
+      }
+
+      .chapter-item {
+        background: #2a2a3c;
+        color: #c0c0ff;
+      }
+    }
+  }
+}
