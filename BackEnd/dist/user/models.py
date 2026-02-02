@@ -32,6 +32,12 @@ class User(AbstractUser):
     email = None     # optional: remove email if not needed
 
     phone = models.CharField(max_length=15, unique=True)
+    display_name = models.CharField(
+    max_length=30,
+    unique=True
+)
+
+
     campaign_code = models.CharField(max_length=50, blank=True, null=True)
 
     USERNAME_FIELD = "phone"

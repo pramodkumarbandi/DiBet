@@ -5,14 +5,18 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import status
+
+from django.contrib.auth.hashers import make_password
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from ..models import User, OTP
-
-from ..serializers.signup_serializer import RegisterSerializer
 from ..utils import validate_phone
-from django.contrib.auth.hashers import make_password 
 
 
+# =========================
+# SEND OTP
+# =========================
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def send_otp(request):
@@ -29,13 +33,14 @@ def send_otp(request):
     OTP.objects.create(phone=phone, otp=otp, expires_at=expiry)
 
     print("OTP:", otp)
-
     return Response({"message": "OTP sent successfully"})
 
 
+# =========================
+# RESEND OTP
+# =========================
 @api_view(['POST'])
 @permission_classes([AllowAny])
-
 def resend_otp(request):
     phone = request.data.get('phone')
 
@@ -54,6 +59,9 @@ def resend_otp(request):
     return Response({"message": "OTP resent successfully"})
 
 
+# =========================
+# VERIFY OTP
+# =========================
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def verify_otp(request):
@@ -65,7 +73,6 @@ def verify_otp(request):
         return Response({"error": msg}, status=400)
 
     otp_obj = OTP.objects.filter(phone=phone).first()
-
     if not otp_obj:
         return Response({"error": "OTP not found"}, status=400)
 
@@ -82,11 +89,14 @@ def verify_otp(request):
     return Response({"message": "OTP verified successfully"})
 
 
+# =========================
+# REGISTER (SIGNUP) – TOKEN ADDED 
+# =========================
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
     phone = request.data.get('phone')
-    username = request.data.get('username')
+    username = request.data.get('username')   # signup username (display name)
     password = request.data.get('password')
     confirm_password = request.data.get('confirm_password')
     campaign_code = request.data.get('campaign_code')
@@ -94,11 +104,9 @@ def register(request):
     if password != confirm_password:
         return Response({"error": "Passwords do not match"}, status=400)
 
-
     is_valid, msg = validate_phone(phone)
     if not is_valid:
         return Response({"error": msg}, status=400)
-
 
     otp_obj = OTP.objects.filter(phone=phone, is_verified=True).first()
     if not otp_obj:
@@ -106,24 +114,35 @@ def register(request):
 
     user = User.objects.filter(phone=phone).first()
 
+    # Case 1: User already fully registered
     if user and user.has_usable_password():
         return Response(
             {"error": "This phone number is already registered. Please login."},
             status=400
         )
 
+    # Case 2: User exists but password not set
     if user and not user.has_usable_password():
-        user.username = username
-        user.password = make_password(password)
+        user.display_name = username          #  CHANGED
+        user.set_password(password)           #  CHANGED (better than make_password)
         user.campaign_code = campaign_code
         user.save()
-        return Response({"message": "Registration completed successfully"}, status=200)
 
-    User.objects.create(
-        phone=phone,
-        username=username,
-        password=make_password(password),
-        campaign_code=campaign_code
-    )
+    else:
+        # Case 3: New user
+        user = User.objects.create(
+            phone=phone,
+            display_name=username,             #  CHANGED
+            password=make_password(password),
+            campaign_code=campaign_code
+        )
 
-    return Response({"message": "User registered successfully"}, status=201)
+    # TOKEN GENERATION (ONLY FOR SIGNUP)
+    refresh = RefreshToken.for_user(user)
+
+    return Response({
+        "message": "Registration successful",
+        "user_id": user.id,
+        "access_token": str(refresh.access_token),
+        "refresh_token": str(refresh)
+    }, status=status.HTTP_201_CREATED)
