@@ -26,7 +26,7 @@ class User(AbstractUser):
     email = None  # remove email
     phone = models.CharField(max_length=15, unique=True)
 
-    # 👇 THIS IS WHAT FRONTEND USES
+    #  THIS IS WHAT FRONTEND USES
     username = models.CharField(
         max_length=30,
         unique=True
