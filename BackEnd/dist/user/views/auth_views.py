@@ -17,10 +17,10 @@ from ..utils import validate_phone
 # =========================
 # SEND OTP
 # =========================
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def send_otp(request):
-    phone = request.data.get('phone')
+    phone = request.data.get("phone")
 
     is_valid, msg = validate_phone(phone)
     if not is_valid:
@@ -37,36 +37,13 @@ def send_otp(request):
 
 
 # =========================
-# RESEND OTP
-# =========================
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def resend_otp(request):
-    phone = request.data.get('phone')
-
-    is_valid, msg = validate_phone(phone)
-    if not is_valid:
-        return Response({"error": msg}, status=400)
-
-    OTP.objects.filter(phone=phone).delete()
-
-    otp = str(random.randint(100000, 999999))
-    expiry = timezone.now() + timedelta(minutes=5)
-
-    OTP.objects.create(phone=phone, otp=otp, expires_at=expiry)
-
-    print("Resent OTP:", otp)
-    return Response({"message": "OTP resent successfully"})
-
-
-# =========================
 # VERIFY OTP
 # =========================
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def verify_otp(request):
-    phone = request.data.get('phone')
-    otp = request.data.get('otp')
+    phone = request.data.get("phone")
+    otp = request.data.get("otp")
 
     is_valid, msg = validate_phone(phone)
     if not is_valid:
@@ -90,16 +67,16 @@ def verify_otp(request):
 
 
 # =========================
-# REGISTER (SIGNUP) – TOKEN ADDED 
+# REGISTER (SIGNUP)
 # =========================
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def register(request):
-    phone = request.data.get('phone')
-    username = request.data.get('username')   # signup username (display name)
-    password = request.data.get('password')
-    confirm_password = request.data.get('confirm_password')
-    campaign_code = request.data.get('campaign_code')
+    phone = request.data.get("phone")
+    username = request.data.get("username")
+    password = request.data.get("password")
+    confirm_password = request.data.get("confirm_password")
+    campaign_code = request.data.get("campaign_code")
 
     if password != confirm_password:
         return Response({"error": "Passwords do not match"}, status=400)
@@ -108,36 +85,21 @@ def register(request):
     if not is_valid:
         return Response({"error": msg}, status=400)
 
+    if User.objects.filter(username=username).exists():
+        return Response({"error": "Username already taken"}, status=400)
+
     otp_obj = OTP.objects.filter(phone=phone, is_verified=True).first()
     if not otp_obj:
         return Response({"error": "OTP not verified"}, status=400)
 
-    user = User.objects.filter(phone=phone).first()
+    user = User.objects.create(
+        phone=phone,
+        username=username,
+        campaign_code=campaign_code
+    )
+    user.set_password(password)
+    user.save()
 
-    # Case 1: User already fully registered
-    if user and user.has_usable_password():
-        return Response(
-            {"error": "This phone number is already registered. Please login."},
-            status=400
-        )
-
-    # Case 2: User exists but password not set
-    if user and not user.has_usable_password():
-        user.display_name = username          #  CHANGED
-        user.set_password(password)           #  CHANGED (better than make_password)
-        user.campaign_code = campaign_code
-        user.save()
-
-    else:
-        # Case 3: New user
-        user = User.objects.create(
-            phone=phone,
-            display_name=username,             #  CHANGED
-            password=make_password(password),
-            campaign_code=campaign_code
-        )
-
-    # TOKEN GENERATION (ONLY FOR SIGNUP)
     refresh = RefreshToken.for_user(user)
 
     return Response({

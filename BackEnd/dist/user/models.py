@@ -19,34 +19,28 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
-        if extra_fields.get("is_staff") is not True:
-            raise ValueError("Superuser must have is_staff=True.")
-        if extra_fields.get("is_superuser") is not True:
-            raise ValueError("Superuser must have is_superuser=True.")
-
         return self.create_user(phone, password, **extra_fields)
 
 
 class User(AbstractUser):
-    username = None  # remove default username
-    email = None     # optional: remove email if not needed
-
+    email = None  # remove email
     phone = models.CharField(max_length=15, unique=True)
-    display_name = models.CharField(
-    max_length=30,
-    unique=True
-)
 
+    # 👇 THIS IS WHAT FRONTEND USES
+    username = models.CharField(
+        max_length=30,
+        unique=True
+    )
 
     campaign_code = models.CharField(max_length=50, blank=True, null=True)
 
-    USERNAME_FIELD = "phone"
-    REQUIRED_FIELDS = []
+    USERNAME_FIELD = "phone"          # login with phone
+    REQUIRED_FIELDS = ["username"]    # username required on signup
 
-    objects = UserManager()   # ❗ VERY IMPORTANT
+    objects = UserManager()
 
     def __str__(self):
-        return self.phone
+        return self.username
 
 
 class OTP(models.Model):
@@ -58,6 +52,3 @@ class OTP(models.Model):
 
     def is_expired(self):
         return timezone.now() > self.expires_at
-
-    def __str__(self):
-        return f"{self.phone} - {self.otp}"
