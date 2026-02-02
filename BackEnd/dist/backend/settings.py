@@ -113,7 +113,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'deccansite_db',
+        'NAME': 'dibet_db',
         'USER':'postgres',
         'PASSWORD':'dideccan',
         'HOST':'localhost',
