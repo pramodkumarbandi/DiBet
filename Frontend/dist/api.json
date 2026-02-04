@@ -1,9 +1,9 @@
 {
     "auth": {
-        "signup": "/api/auth/register/",
+        "signup": "/api/register/",
         "login": "/api/auth/login/",
-        "sendOtp": "/api/auth/send-otp/",
-        "verifyOtp": "/api/auth/verify-otp/",
+        "sendOtp": "/api/send-otp/",
+        "verifyOtp": "/api/verify-otp/",
         "forgotPassword": "/api/auth/forgot-password/",
         "getProfile": "/api/auth/profile/",
         "logout": "/api/auth/logout/",

@@ -1,0 +1,16 @@
+[
+  { "id": 1, "label": "Cricket", "icon": "🏏", "active": "true" },
+  { "id": 2, "label": "Football", "icon": "⚽" },
+  { "id": 3, "label": "Tennis", "icon": "🎾" },
+  { "id": 4, "label": "Horse Racing", "icon": "🐎" },
+  { "id": 5, "label": "Greyhound Racing", "icon": "🐕" },
+  { "id": 6, "label": "Basketball", "icon": "🏀" },
+  { "id": 7, "label": "Baseball", "icon": "⚾" },
+  { "id": 8, "label": "Kabaddi", "icon": "🤼" },
+  { "id": 9, "label": "Sportsbook", "icon": "🏆" },
+  { "id": 10, "label": "Casino", "icon": "🃏" },
+  { "id": 11, "label": "Aviator", "icon": "🚀" },
+  { "id": 12, "label": "Slot Games", "icon": "🎰" },
+  { "id": 13, "label": "Binary", "icon": "📊" },
+  { "id": 14, "label": "Politics", "icon": "🏛️" }
+]

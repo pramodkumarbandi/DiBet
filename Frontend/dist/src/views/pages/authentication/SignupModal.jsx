@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { sendOtp, verifyOtp, signupUser } from '../../../redux/authSlice';
 import { Button, Input, Form, FormGroup, Label, Spinner, FormFeedback } from 'reactstrap';
 import { useSkin } from '@hooks/useSkin';
+import toast, { Toaster } from 'react-hot-toast';
 import logo from '../../../assets/images/logo.png';
 
 const SignupModal = ({ toggle, onSwitchToLogin }) => { 
@@ -23,44 +24,76 @@ const SignupModal = ({ toggle, onSwitchToLogin }) => {
   const [phoneVerified, setPhoneVerified] = useState(false);
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-
+ 
   const handleSendOtp = async () => {
-    if (!form.phone) return alert("Enter phone number");
+    if (!form.phone) {
+      toast.error('Enter phone number');
+      return;
+    }
+
+    if (!isPhoneValid) {
+      toast.error('Enter a valid 10-digit phone number');
+      return;
+    }
+
     setPhoneOtpLoading(true);
     try {
       await dispatch(sendOtp(form.phone)).unwrap();
-      setPhoneOtpLoading(false);
+      toast.success('OTP sent successfully');
     } catch (err) {
+      toast.error(err || 'Failed to send OTP');
+    } finally {
       setPhoneOtpLoading(false);
-      alert(err || "Failed to send OTP");
     }
   };
 
   const handleVerifyOtp = async () => {
-    if (!form.otp) return alert("Enter OTP");
+    if (!form.otp) {
+      toast.error('Enter OTP');
+      return;
+    }
+
     try {
-      await dispatch(verifyOtp({ phone: form.phone, otp: form.otp })).unwrap();
+      await dispatch(
+        verifyOtp({ phone: form.phone, otp: form.otp })
+      ).unwrap();
       setPhoneVerified(true);
+      toast.success('Phone verified successfully');
     } catch (err) {
-      alert(err || "OTP verification failed");
+      toast.error(err || 'OTP verification failed');
     }
   };
 
-  const handleSignup = () => {
-    if (!phoneVerified) return alert("Verify phone OTP first");
-    if (form.password !== form.confirm_password) return alert("Passwords do not match");
+ const handleSignup = () => {
+    if (!phoneVerified) {
+      toast.error('Verify phone OTP first');
+      return;
+    }
 
-    dispatch(signupUser({
-      phone: form.phone,
-      username: form.username,
-      password: form.password,
-      confirm_password: form.confirm_password,
-      referral: form.referral
-    }));
+    if (form.password !== form.confirm_password) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    dispatch(
+      signupUser({
+        phone: form.phone,
+        username: form.username,
+        password: form.password,
+        confirm_password: form.confirm_password,
+        referral: form.referral
+      })
+    );
+
+    toast.loading('Creating your account...');
   };
 
   useEffect(() => {
-    if (user) toggle();
+    if (user) {
+      toast.dismiss();
+      toast.success('Account created successfully 🎉');
+      toggle();
+    }
   }, [user]);
 
   const isPhoneValid = /^\d{10}$/.test(form.phone);
@@ -196,29 +229,52 @@ const SignupModal = ({ toggle, onSwitchToLogin }) => {
               </div>
 
               {/* OTP Input */}
-              {otpSent && !phoneVerified && (
-                <div className="input-group mt-1">
-                  <Input
-                    type="text"
-                    placeholder="Enter OTP"
-                    value={form.otp}
-                    onChange={handleChange}
-                    style={{
-                      ...inputStyles,
-                      paddingRight: '110px'
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    disabled={loading}
-                    className="position-absolute top-50 end-0 translate-middle-y me-1"
-                    onClick={handleVerifyOtp}
-                    style={buttonStyles}
-                  >
-                    {loading ? <Spinner size="sm" /> : "Verify OTP"}
-                  </Button>
-                </div>
-              )}
+{/* OTP Input */}
+{otpSent && !phoneVerified && (
+  <div className="position-relative mt-1">
+    <Input
+      type="text"
+      id="otp"
+      name="otp"
+      placeholder="Enter OTP"
+      value={form.otp}
+      onChange={handleChange}
+      autoComplete="one-time-code"
+      inputMode="numeric"
+      maxLength={6}
+      style={{
+        ...inputStyles,
+        paddingRight: '110px',
+      }}
+    />
+
+    <span
+      onClick={!loading && form.otp?.length === 6 ? handleVerifyOtp : undefined}
+      style={{
+        position: "absolute",
+        top: "50%",
+        right: "10px",
+        transform: "translateY(-50%)",
+        cursor: !loading && form.otp?.length === 6 ? "pointer" : "not-allowed",
+        color: !loading && form.otp?.length === 6 ? "green" : "#6c757d",
+        fontWeight: "500",
+        transition: "color 0.2s",
+      }}
+      onMouseEnter={e => {
+        if (!loading && form.otp?.length === 6)
+          e.target.style.color = "#0f9d58";
+      }}
+      onMouseLeave={e => {
+        if (!loading && form.otp?.length === 6)
+          e.target.style.color = "green";
+      }}
+    >
+      {loading ? <Spinner size="sm" /> : "Verify OTP"}
+    </span>
+  </div>
+)}
+
+
             </FormGroup>
 
             {/* Username */}
